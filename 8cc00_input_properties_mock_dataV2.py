@@ -5,7 +5,6 @@ from rdkit.Chem import Descriptors
 # Input definition
 infile = 'tested_molecules.csv'
 df = pd.read_csv(infile)
-df = df.head(25)
 smiles_column = 'SMILES'
 
 # Get all available descriptors
@@ -27,7 +26,7 @@ for prop_name in properties.keys():
     df[prop_name] = df[smiles_column].apply(lambda x: compute_properties(x).get(prop_name))
 
 # Create new CSV file
-outfile = 'tested_molecules_properties.csv'
+outfile = 'tested_molecules_properties_all.csv'
 df.to_csv(outfile, index=False)
 
 # Print all extracted property names
