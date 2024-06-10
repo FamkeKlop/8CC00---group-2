@@ -14,6 +14,8 @@ from sklearn.utils import resample
 #from sklearn import metrics
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+import pandas as pd
+
 
 """
 Adjutsed code of Jort to include PCA, taking a explained variance of 75%. 
@@ -51,31 +53,7 @@ def scale_and_pca(dataset, variance_threshold=0.75):
     # Print the number of principal components needed
     print(f'Number of principal components needed to capture at least {variance_threshold*100}% of the variance: {n_pcs_needed}')
     
-    return pca, n_pcs_needed, dataset_scaled, explained_variance_ratio
-
-    """
-    Identifies the features with the lowest absolute loadings for each principal component.
-
-    Parameters:
-    loadings (array-like): The loadings of the principal components.
-    feature_names (list): The names of the features.
-    n_bottom (int): The number of bottom features to select for each principal component. Default is 5.
-    n_components (int): The number of principal components to consider. Default is 10.
-
-    Returns:
-    bottom_features (list of lists): A list where each sublist contains the bottom features for a principal component.
-    """
-    bottom_features = []
-    
-    for i in range(n_components):
-        component_loadings = loadings[i]
-        if len(component_loadings) <= n_bottom:
-            bottom_indices = np.arange(len(component_loadings))
-        else:
-            bottom_indices = np.argpartition(np.abs(component_loadings), n_bottom)[:n_bottom]
-        bottom_features.append([feature_names[idx] for idx in bottom_indices])
-    
-    return bottom_features
+    return pca, n_pcs_needed
 
 df = pd.read_csv("tested_molecules_properties_all.csv")
 
@@ -193,8 +171,8 @@ X_PKM2 = X[features_PKM2]
 X_ERK2 = X[features_ERK2]
 
 # Scale and apply PCA on the PKM2 dataset
-pca_train_PKM2, n_pcs_needed_PKM2, train_scaled_PKM2, loadings_PKM2 = scale_and_pca(X_PKM2)
+pca_PKM2, n_pcs_needed_PKM2 = scale_and_pca(X_PKM2)
 
 # Scale and apply PCA on the ERK2 dataset
-pca_train_ERK2, n_pcs_needed_ERK2, train_scaled_ERK2, loadings_ERK2 = scale_and_pca(X_ERK2)
+pca_ERK2, n_pcs_needed_ERK2 = scale_and_pca(X_ERK2)
 
