@@ -8,7 +8,20 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn import metrics
 
+
+
+
+
+# IMPORTANT
 # NOTE: PARAMETERS ARE NOT FINAL IN THIS CODE. FOR EXAMPLE, CUMULATIVE VARIANCE EXPLAINED IS SET VERY HIGH AND THE NUMBER OF NEIGHBOURS IN KNN IS ALSO FIXED.
+
+
+
+
+
+
+
+
 
 # Read the dataset
 df = pd.read_csv("tested_molecules_properties_all.csv")
