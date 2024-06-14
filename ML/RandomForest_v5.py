@@ -1,13 +1,15 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.utils import resample
-from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, precision_recall_curve, average_precision_score
 from collections import Counter
-#from imblearn.over_sampling import SMOTE
+
 
 # READ ME:
 # This code prepares the dataset for the creation of ML model:
@@ -132,7 +134,7 @@ df = pd.read_csv("cleaned_df.csv")
 print(df.head())
 
 # 0) Correlation btw features
-df_corr = df.drop(['SMILES'], axis=1)
+df_corr = df.drop(['SMILES','PKM2_inhibition','ERK2_inhibition'], axis=1)
 correlation_matrix = df_corr.corr()
 
 # defined threshold for strong correlation
