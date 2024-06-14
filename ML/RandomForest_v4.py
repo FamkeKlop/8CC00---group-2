@@ -75,7 +75,6 @@ features_PKM2 = [
     "SlogP_VSA8",
     "LabuteASA",
     "PEOE_VSA4"
-
 ]
 
 # ERK2 features
@@ -123,7 +122,6 @@ features_ERK2 = [
     "fr_Nhpyrrole",
     "LabuteASA",
     "EState_VSA4"
-
 ]
 
 # 1) Divide the dataset into X, Y for PKM2
