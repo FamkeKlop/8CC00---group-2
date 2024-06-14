@@ -5,8 +5,9 @@ from sklearn.utils import resample
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
-from imblearn.over_sampling import SMOTE
+from sklearn.metrics import confusion_matrix
 from collections import Counter
+#from imblearn.over_sampling import SMOTE
 
 # READ ME:
 # This code prepares the dataset for the creation of ML model:
@@ -403,4 +404,19 @@ both_kinase_accuracy = both_kinase_correct / total_instances
 
 # Display Dual Kinase Accuracy
 print(f"\nBoth kinases correct (accuracy): {both_kinase_accuracy:.2f}")
-    
+
+# Confusion matrix for PKM2
+cm_PKM2 = confusion_matrix(Y_test_PKM2, Y_pred_test_PKM2)
+sns.heatmap(cm_PKM2, annot=True, fmt='d', cmap="Blues")
+plt.title("PKM2 Confusion Matrix")
+plt.xlabel("Predicted Labels")
+plt.ylabel("True Labels")
+plt.show()
+
+# Confusion matrix for ERK2
+cm_ERK2 = confusion_matrix(Y_test_ERK2, Y_pred_test_ERK2)
+sns.heatmap(cm_ERK2, annot=True, fmt='d', cmap="Blues")
+plt.title("ERK2 Confusion Matrix")
+plt.xlabel("Predicted Labels")
+plt.ylabel("True Labels")
+plt.show()   
