@@ -22,10 +22,12 @@ from collections import Counter
 # 3) splits the dataset into training and test set.
 # 4) makes the 'oversampling' of the minority class in the training set (I shouldn't modify the test set)
 
-#df = pd.read_csv("tested_molecules_properties_all.csv")
 
-'''
-# PKM2 features
+
+df = pd.read_csv("cleaned_df.csv")
+print(df.head())
+
+# PKM2 features with p-value < 0.05
 features_PKM2 = [
     "NumAromaticRings",
     "RingCount",
@@ -79,10 +81,9 @@ features_PKM2 = [
     "SlogP_VSA8",
     "LabuteASA",
     "PEOE_VSA4"
-
 ]
 
-# ERK2 features
+# ERK2 features with p-value < 0.05
 features_ERK2 = [
     "NumAromaticRings",
     "RingCount",
@@ -127,14 +128,22 @@ features_ERK2 = [
     "fr_Nhpyrrole",
     "LabuteASA",
     "EState_VSA4"
-
 ]
-'''
-df = pd.read_csv("cleaned_df.csv")
-print(df.head())
 
 # 0) Correlation btw features
 df_corr = df.drop(['SMILES','PKM2_inhibition','ERK2_inhibition'], axis=1)
+
+# Identify columns which are not in the feature list and remove them
+to_remove = set()
+for col in df_corr.columns:
+    if col not in features_PKM2:
+        to_remove.add(col)
+
+print(f"Colomns to remove: {to_remove}")
+df_reduced = df_corr.drop(columns=to_remove)
+df_reduced.to_csv("df_reduced.csv", index=False)
+
+
 correlation_matrix = df_corr.corr()
 
 # defined threshold for strong correlation
@@ -154,6 +163,7 @@ df_reduced = df_corr.drop(columns=to_remove)
 df_reduced.to_csv("df_reduced.csv", index=False)
 
 
+########################################################################
 # 1) Divide the dataset into X, Y for PKM2
 X_PKM2 = pd.read_csv("df_reduced.csv")
 X_ERK2 = pd.read_csv("df_reduced.csv")
@@ -192,23 +202,28 @@ Y_train_minority_resampled_PKM2 = resample(Y_train_minority_PKM2, replace=True, 
 X_train_resampled_PKM2 = pd.concat([X_train_majority_PKM2, X_train_minority_resampled_PKM2])
 Y_train_resampled_PKM2 = pd.concat([Y_train_majority_PKM2, Y_train_minority_resampled_PKM2])
 
-# Random Forest for PKM2
+# 5) Random Forest for PKM2
+# Define the parameter grid
 parameters_PKM2 = {
-    'n_estimators': [100,110,120,130,140],  # Number of trees in the forest
-    'max_depth': [25,30,35,40],  # Maximum depth of the tree
-    'min_samples_split': [2,3,4,5],  # Minimum number of samples required to split an internal node
-    'min_samples_leaf': [2,3],  # Minimum number of samples required to be at a leaf node
-    'bootstrap': [True],  # Whether bootstrap samples are used when building trees
-    'criterion': ['gini','entropy','log_loss'],
-    'max_features':[2,3]
+    'n_estimators': [100, 110, 120, 130, 140],      # Number of trees in the forest
+    'criterion': ["gini", "entropy", "log_loss"],   # Function to measure quality of the split
+    'max_depth': [25, 30, 35, 40],                  # Maximum depth of the tree
+    'min_samples_split': [2, 3, 4, 5],              # Minimum number of samples required to split an internal node
+    'min_samples_leaf': [2, 3],                     # Minimum number of samples required to be at a leaf node
+    'max_features':["sqrt", "log2", None],          # Number of features to consider when looking for the best split
 }
 
-scoring_PKM2 = {'accuracy': 'accuracy', 'f1_micro': 'f1_micro', 'roc_auc': 'roc_auc','balanced_accuracy': 'balanced_accuracy'}
+# Define the scoring matrix
+scoring_PKM2 = {'accuracy': 'accuracy', 'f1_micro': 'f1_micro', 'roc_auc': 'roc_auc','balanced_accuracy': 'balanced_accuracy', 'precision_micro': 'precision_micro'}
+
+# Initialize the classifier
 classifier_PKM2 = RandomForestClassifier()
 
-gs_PKM2 = GridSearchCV(classifier_PKM2, parameters_PKM2, cv=2, scoring=scoring_PKM2, verbose=0, n_jobs=-1, refit='balanced_accuracy')
-gs_PKM2.fit(X_train_resampled_PKM2, Y_train_resampled_PKM2)
+# Initialize GridSearchCV
+gs_PKM2 = GridSearchCV(classifier_PKM2, parameters_PKM2, cv=2, scoring=scoring_PKM2, verbose=90, n_jobs=-1, refit='balanced_accuracy')
 
+# Fit the model on the resampled training data
+gs_PKM2.fit(X_train_resampled_PKM2, Y_train_resampled_PKM2)
 
 # Results for PKM2
 print(f"Best score for PKM2: {gs_PKM2.best_score_} using {gs_PKM2.best_params_}")
@@ -221,6 +236,7 @@ Y_pred_test_PKM2 = best_model_PKM2.predict(X_test_PKM2)
 Y_pred_train_PKM2 = best_model_PKM2.predict(X_train_resampled_PKM2)
 
 
+########################################################################
 # Repeat the process for ERK2
 # 1) Divide the dataset into X, Y for ERK2
 Y_ERK2 = df['ERK2_inhibition']
@@ -238,7 +254,7 @@ else:
 print(f"Imbalance Ratio (majority:minority): {imbalance_ratio:.2f}")
 print("\n")
 
-# 2) Split the dataset into training and test sets for ERK2
+# 3) Split the dataset into training and test sets for ERK2
 X_train_ERK2, X_test_ERK2, Y_train_ERK2, Y_test_ERK2, smiles_train_ERK2, smiles_test_ERK2 = train_test_split(
     X_ERK2, Y_ERK2, smiles, test_size=0.30, stratify=Y_ERK2, random_state=190
 )
@@ -257,23 +273,28 @@ Y_train_minority_resampled_ERK2 = resample(Y_train_minority_ERK2, replace=True, 
 X_train_resampled_ERK2 = pd.concat([X_train_majority_ERK2, X_train_minority_resampled_ERK2])
 Y_train_resampled_ERK2 = pd.concat([Y_train_majority_ERK2, Y_train_minority_resampled_ERK2])
 
-# Random Forest for ERK2
+# 5) Random Forest for ERK2
+# Define the parameter grid
 parameters_ERK2 = {
-    'n_estimators': [100,110,120,130,140],   # Number of trees in the forest
-    'max_depth': [25,30,35,40],  # Maximum depth of the tree
-    'min_samples_split': [2,3,4,5],  # Minimum number of samples required to split an internal node
-    'min_samples_leaf': [2,3],  # Minimum number of samples required to be at a leaf node
-    'bootstrap': [True],  # Whether bootstrap samples are used when building trees
-    'criterion': ['gini','entropy','log_loss'],
-    'max_features':[2,3]
+    'n_estimators': [100, 110, 120, 130, 140],      # Number of trees in the forest
+    'criterion': ["gini", "entropy", "log_loss"],   # Function to measure quality of the split
+    'max_depth': [25, 30, 35, 40],                  # Maximum depth of the tree
+    'min_samples_split': [2, 3, 4, 5],              # Minimum number of samples required to split an internal node
+    'min_samples_leaf': [2, 3],                     # Minimum number of samples required to be at a leaf node
+    'max_features':["sqrt", "log2", None],          # Number of features to consider when looking for the best split
 }
 
-scoring_ERK2 = {'accuracy': 'accuracy', 'f1_micro': 'f1_micro', 'roc_auc': 'roc_auc','balanced_accuracy': 'balanced_accuracy'}
+# Define the scoring matrix
+scoring_ERK2 = {'accuracy': 'accuracy', 'f1_micro': 'f1_micro', 'roc_auc': 'roc_auc','balanced_accuracy': 'balanced_accuracy', 'precision_micro': 'precision_micro'}
+
+# Initialize the classifier
 classifier_ERK2 = RandomForestClassifier()
 
-gs_ERK2 = GridSearchCV(classifier_ERK2, parameters_ERK2, cv=2, scoring=scoring_ERK2, verbose=0, n_jobs=-1, refit='balanced_accuracy')
-gs_ERK2.fit(X_train_resampled_ERK2, Y_train_resampled_ERK2)
+# Initialize GridSearchCV
+gs_ERK2 = GridSearchCV(classifier_ERK2, parameters_ERK2, cv=2, scoring=scoring_ERK2, verbose=90, n_jobs=-1, refit='balanced_accuracy')
 
+# Fit the model on the resampled training data
+gs_ERK2.fit(X_train_resampled_ERK2, Y_train_resampled_ERK2)
 
 # Results for ERK2
 print(f"Best score for ERK2: {gs_ERK2.best_score_} using {gs_ERK2.best_params_}")
@@ -284,48 +305,18 @@ print("Best cross-validation score for ERK2:", gs_ERK2.best_score_)
 best_model_ERK2 = gs_ERK2.best_estimator_
 Y_pred_test_ERK2 = best_model_ERK2.predict(X_test_ERK2)
 Y_pred_train_ERK2 = best_model_ERK2.predict(X_train_resampled_ERK2)
-# Print final results
-print("\nPKM2:")
-print(metrics.classification_report(Y_test_PKM2, Y_pred_test_PKM2))
-print("\nERK2:")
-print(metrics.classification_report(Y_test_ERK2, Y_pred_test_ERK2))
 
-# Quick validation of accuracy
-# Calculate the accuracy for PKM2 inhibition
-pkm2_correct_predictions = (Y_test_PKM2 == Y_pred_test_PKM2).sum()
-pkm2_total_predictions = len(Y_test_PKM2)
-pkm2_accuracy = pkm2_correct_predictions / pkm2_total_predictions
+# Save the model for ERK2
+with open('model_KNN_ERK2.pkl', 'wb') as file:
+    pickle.dump(best_model_ERK2, file)
 
-# Calculate the accuracy for ERK2 inhibition
-erk2_correct_predictions = (Y_test_ERK2 == Y_pred_test_ERK2).sum()
-erk2_total_predictions = len(Y_test_ERK2)
-erk2_accuracy = erk2_correct_predictions / erk2_total_predictions
+# Save the model for PKM2
+with open('model_KNN_PKM2.pkl', 'wb') as file:
+    pickle.dump(best_model_PKM2, file)
 
-print(f"\nPKM2 inhibition accuracy: {pkm2_accuracy:.2f}")
-print(f"ERK2 inhibition accuracy: {erk2_accuracy:.2f}")
 
-# Combine SMILES, actual and predicted values into a final dataframe for PKM2
-final_df_PKM2 = pd.DataFrame({
-    'SMILES': smiles_test_PKM2.reset_index(drop=True),  # Ensure index alignment
-    'PKM2_actual_inhibition': Y_test_PKM2.reset_index(drop=True),
-    'PKM2_pred_inhibition': Y_pred_test_PKM2
-})
-
-# Combine SMILES, actual and predicted values into a final dataframe for ERK2
-final_df_ERK2 = pd.DataFrame({
-    'SMILES': smiles_test_ERK2.reset_index(drop=True),  # Ensure index alignment
-    'ERK2_actual_inhibition': Y_test_ERK2.reset_index(drop=True),
-    'ERK2_pred_inhibition': Y_pred_test_ERK2
-})
-
-# Merge the two dataframes on 'SMILES' column
-final_df = pd.merge(final_df_PKM2, final_df_ERK2, on='SMILES')
-
-# Print the final dataframe
-print("\nFinal DataFrame with predictions and actual values:")
-print(final_df.head())
-
-# 7) Final results
+########################################################################
+# 6) Final results
 print("\nPKM2:")
 print(metrics.classification_report(Y_test_PKM2, Y_pred_test_PKM2))
 print("\nERK2:")
@@ -368,7 +359,7 @@ print(final_df.head())
 
 
 # Additional metrics
-# Calculate F1-score, Precision, Recall, AUC-ROC, and accuracy for PKM2 inhibition
+# Calculate F1-score, Precision, Recall, AUC-ROC, and (balanced) accuracy for PKM2 inhibition
 pkm2_accuracy = metrics.accuracy_score(Y_test_PKM2, Y_pred_test_PKM2)
 pkm2_bacc = metrics.balanced_accuracy_score(Y_test_PKM2, Y_pred_test_PKM2)
 pkm2_precision = metrics.precision_score(Y_test_PKM2, Y_pred_test_PKM2)
@@ -383,8 +374,8 @@ print(f"PKM2 inhibition recall: {pkm2_recall:.2f}")
 print(f"PKM2 inhibition F1-score: {pkm2_f1:.2f}")
 print(f"PKM2 inhibition AUC-ROC: {pkm2_auc:.2f}")
 
-# Calculate F1-score, Precision, Recall, AUC-ROC, and accuracy for ERK2 inhibition
-erk2_accuracy = metrics.accuracy_score(Y_test_ERK2, Y_pred_test_ERK2)
+# Calculate F1-score, Precision, Recall, AUC-ROC, and (balanced) accuracy for PKM2 inhibition
+pkm2_accuracy = metrics.accuracy_score(Y_test_ERK2, Y_pred_test_ERK2)
 erk2_bacc = metrics.balanced_accuracy_score(Y_test_ERK2, Y_pred_test_ERK2)
 erk2_precision = metrics.precision_score(Y_test_ERK2, Y_pred_test_ERK2)
 erk2_recall = metrics.recall_score(Y_test_ERK2, Y_pred_test_ERK2)
@@ -421,4 +412,35 @@ sns.heatmap(cm_ERK2, annot=True, fmt='d', cmap="Blues")
 plt.title("ERK2 Confusion Matrix")
 plt.xlabel("Predicted Labels")
 plt.ylabel("True Labels")
-plt.show()   
+plt.show()
+
+
+# Calculate ROC curve for PKM2
+y_probs_PKM2 = best_model_PKM2.predict_proba(X_test_PKM2)[:,1]  # Predict probabilities for the positive class
+fpr_PKM2, tpr_PKM2, thresholds_PKM2 = metrics.roc_curve(Y_test_PKM2, y_probs_PKM2)
+
+plt.plot(fpr_PKM2, tpr_PKM2, label='PKM2 ROC')
+plt.plot([0, 1], [0, 1], color='darkblue', linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve - PKM2')
+plt.legend()
+plt.show()
+
+auc_PKM2 = metrics.roc_auc_score(Y_test_PKM2, y_probs_PKM2)
+print('AUC for PKM2: %.2f' % auc_PKM2)
+
+# Calculate ROC curve for ERK2
+y_probs_ERK2 = best_model_ERK2.predict_proba(X_test_ERK2)[:,1]  # Predict probabilities for the positive class
+fpr_ERK2, tpr_ERK2, thresholds_ERK2 = metrics.roc_curve(Y_test_ERK2, y_probs_ERK2)
+
+plt.plot(fpr_ERK2, tpr_ERK2, label='ERK2 ROC')
+plt.plot([0, 1], [0, 1], color='darkblue', linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve - ERK2')
+plt.legend()
+plt.show()
+
+auc_ERK2 = metrics.roc_auc_score(Y_test_ERK2, y_probs_ERK2)
+print('AUC for ERK2: %.2f' % auc_ERK2)
