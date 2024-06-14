@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.utils import resample
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
-from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, precision_recall_curve, average_precision_score
+from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score
 from collections import Counter
 
 
