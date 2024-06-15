@@ -306,14 +306,6 @@ best_model_ERK2 = gs_ERK2.best_estimator_
 Y_pred_test_ERK2 = best_model_ERK2.predict(X_test_ERK2)
 Y_pred_train_ERK2 = best_model_ERK2.predict(X_train_resampled_ERK2)
 
-# Save the model for ERK2
-with open('model_KNN_ERK2.pkl', 'wb') as file:
-    pickle.dump(best_model_ERK2, file)
-
-# Save the model for PKM2
-with open('model_KNN_PKM2.pkl', 'wb') as file:
-    pickle.dump(best_model_PKM2, file)
-
 
 ########################################################################
 # 6) Final results
