@@ -10,15 +10,15 @@ from collections import Counter
 
 
 # READ ME:
-# This code prepares the dataset for the creation of ML model:
-# 1) separates the features (X) from the target variable (Y)
-# 2) understands if the dataset is balanced
-#   (since the target variable contains much more (0,0) (majority class) than (1,0),(0,1),(1,1) (minority classes)
-#   the algorithm will not be able to represent the minority class
-#   => I have to increase the number of observations whose Y is different from (0,0),
-#   in order to make the dataset more balanced => oversampling)
-# 3) splits the dataset into training and test set.
-# 4) makes the 'oversampling' of the minority class in the training set (I shouldn't modify the test set)
+# This code used the data set "cleaned_df.csv".
+# 0) Then it determines for every two features the correlation value.
+# If two features are highly correlated, one of them is removed.
+# 1) It separates the features (X) from the target variable (Y).
+# 2) Splits the dataset into training and test set.
+# 3) Performs the 'oversampling' of the minority class in the training set.
+# 4) Creates a random forest model. This model is used to make predictions for the test set.
+# 5) Evaluates the model and creates ROC curves.
+
 
 
 df = pd.read_csv("cleaned_df.csv")
@@ -162,7 +162,7 @@ Y_pred_train_ERK2 = best_model_ERK2.predict(X_train_resampled_ERK2)
 
 
 ########################################################################
-# 6) Final results
+# 5) Final results
 # Print classification report
 print("\nPKM2:")
 print(metrics.classification_report(Y_test_PKM2, Y_pred_test_PKM2))
