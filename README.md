@@ -33,7 +33,7 @@ This folder contains again a subfolder called **Models**, this consists of the a
 Finally the visulalizations of the codes are gathered in the **visulations** folder. Including scatter plots, ROC-curces and confusion-matrices.
 
 ### Final Remarks
-All contributors to this project are: Laura Moiana, Giorgia Barra, David Keur, Kirsten Brusse, Jaleel Dibani, Roan Jacobs, Jort Lokers and Famke Klop. Special thanks to Francesca Grisoni and Dragan Bosnacki for provding the necessary data.
+All contributors to this project are: Laura Moiana, Giorgia Barra, David Keur, Kirsten Brusse, Jaleel Dibani, Roan Jacobs, Jort Lokers and Famke Klop. Special thanks to Francesca Grisoni and Dragan Bosnacki for providing the necessary data.
 
 
 
