@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
 from sklearn.model_selection import GridSearchCV
@@ -151,12 +151,12 @@ Y_train_resampled_PKM2 = pd.concat([Y_train_majority_PKM2, Y_train_minority_resa
 # 4) Random Forest for PKM2
 # Define the parameter grid
 parameters_PKM2 = {
-    'n_estimators': [100], #, 110, 120, 130, 140],      # Number of trees in the forest
-    'criterion': ["gini"], #, "entropy", "log_loss"],   # Function to measure quality of the split
+    'n_estimators': [100, 110, 120, 130, 140],      # Number of trees in the forest
+    'criterion': ["gini", "entropy", "log_loss"],   # Function to measure quality of the split
     'max_depth': [25, 30, 35, 40],                  # Maximum depth of the tree
     'min_samples_split': [2, 3, 4, 5],              # Minimum number of samples required to split an internal node
     'min_samples_leaf': [2, 3],                     # Minimum number of samples required to be at a leaf node
-    'max_features':["sqrt"] #, "log2", None],          # Number of features to consider when looking for the best split
+    'max_features':["sqrt", "log2", None],          # Number of features to consider when looking for the best split
 }
 
 # Define the scoring matrix
@@ -210,12 +210,12 @@ Y_train_resampled_ERK2 = pd.concat([Y_train_majority_ERK2, Y_train_minority_resa
 # 4) Random Forest for ERK2
 # Define the parameter grid
 parameters_ERK2 = {
-    'n_estimators': [100], #, 110, 120, 130, 140],      # Number of trees in the forest
-    'criterion': ["gini"], #, "entropy", "log_loss"],   # Function to measure quality of the split
-    'max_depth': [25], #, 30, 35, 40],                  # Maximum depth of the tree
+    'n_estimators': [100, 110, 120, 130, 140],      # Number of trees in the forest
+    'criterion': ["gini", "entropy", "log_loss"],   # Function to measure quality of the split
+    'max_depth': [25, 30, 35, 40],                  # Maximum depth of the tree
     'min_samples_split': [2, 3, 4, 5],              # Minimum number of samples required to split an internal node
     'min_samples_leaf': [2, 3],                     # Minimum number of samples required to be at a leaf node
-    'max_features':["sqrt"] #, "log2", None],          # Number of features to consider when looking for the best split
+    'max_features':["sqrt", "log2", None],          # Number of features to consider when looking for the best split
 }
 
 # Define the scoring matrix
