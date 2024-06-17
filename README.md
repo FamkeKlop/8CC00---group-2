@@ -2,7 +2,7 @@
 ## Advanced Programming
 
 ### Introduction and scope
-This project focussed on the implementation of a **machine learning model** with respect to predicting **kinase inhibition**. The model could be used as a means for future **drug discovery**, which up until now has been a time-consuming process. Computer aided drug discovery (CADD), will allow researchers to find more molecular candidates for medical purposes in a more timely manner. To this end multiple appraoches have been implemented. This page contains all of those, and some unfinished or unused codes that were not deemed significant enough to mention in the final product. However, some of this code could be used in further research as they might aid further accurate prediction models.
+This project focussed on the implementation of a **machine learning model** with respect to predicting **kinase inhibition**. The model could be used as a means for future **drug discovery**, which up until now has been a time-consuming process. Computer aided drug discovery (CADD), will allow researchers to find more molecular candidates for medical purposes in a more timely manner. To this end multiple approaches have been implemented. This page contains all of those, and some unfinished or unused codes that were not deemed significant enough to mention in the final product. However, some of this code could be used in further research as they might aid further accurate prediction models.
 
 ### To get started
 The complete code is divided into 7 main sub categories each contained in a folder
